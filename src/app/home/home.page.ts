@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { UsuariosService } from '../services/usuarios.service';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -14,20 +14,35 @@ export class HomePage {
     private usuarioService: UsuariosService,
     private router: Router,
     public toastController: ToastController,
+    public alertController: AlertController
   ) { }
 
-  public logout() {
-    this.usuarioService.logout();
-    this.router.navigateByUrl('/login');
-    this.presentToast();
+  async ionViewWillEnter() {
+    const usuarioLogado = await this.usuarioService.buscarUsuarioLogado();
+    if (!usuarioLogado) {
+      this.router.navigateByUrl('/login');
+    }
   }
 
-  async presentToast() {
-    const toast = await this.toastController.create({
-      message: 'Logout efetuado com sucesso!',
-      duration: 2000
+  async exibirAlertLogout() {
+    const alert = await this.alertController.create({
+      header: 'Confirmação!',
+      message: 'Deseja realmente sair?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        }, {
+          text: 'Sim, desejo sair!',
+          handler: () => {
+            this.usuarioService.removerUsuarioLogado();
+            this.router.navigateByUrl('/login');
+          }
+        }
+      ]
     });
-    toast.present();
+
+    await alert.present();
   }
 
 }

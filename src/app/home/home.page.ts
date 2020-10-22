@@ -24,6 +24,14 @@ export class HomePage {
     }
   }
 
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Logout efetuado com sucesso!',
+      duration: 2000
+    });
+    toast.present();
+  }
+
   async exibirAlertLogout() {
     const alert = await this.alertController.create({
       header: 'Confirmação!',
@@ -36,6 +44,7 @@ export class HomePage {
           text: 'Sim, desejo sair!',
           handler: () => {
             this.usuarioService.removerUsuarioLogado();
+            this.presentToast();
             this.router.navigateByUrl('/login');
           }
         }
